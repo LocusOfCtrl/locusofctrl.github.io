@@ -1,0 +1,296 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<rss version='2.0' xmlns:atom='http://www.w3.org/2005/Atom'>
+<channel>
+<atom:link href='http://locusofctrl.github.io/' rel='self' type='application/rss+xml'/>
+<title>
+After Sol
+</title>
+<link>
+http://locusofctrl.github.io/
+</link>
+<description>
+notes and musings
+</description>
+<lastBuildDate>
+Mon, 31 Dec 2018 13:44:36 -0800
+</lastBuildDate>
+<generator>
+clj-rss
+</generator>
+<item>
+<guid>
+http://locusofctrl.github.io/blog/posts-output/2018-12-31-gmvh-simulation/
+</guid>
+<link>
+http://locusofctrl.github.io/blog/posts-output/2018-12-31-gmvh-simulation/
+</link>
+<title>
+GMVH Simulation
+</title>
+<description>
+&lt;p&gt;A simulation of Fisherian evolution to investigate the Greater Male Variability Hypothesis (GMVH)&lt;/p&gt;&lt;p&gt;&lt;!&amp;ndash; Run spellcheck with: mdspell -x -n &amp;#45;&amp;#45;en-us README.md &amp;ndash;&gt;&lt;/p&gt;&lt;h2 id=&quot;about&quot;&gt;About&lt;/h2&gt;&lt;p&gt;&lt;a href='https://arxiv.org/pdf/1703.04184v10.pdf'&gt;Hill and Tabachnikov (2018)&lt;/a&gt; had proposed an analytical model which predicts that high female choosiness favors males with high phenotypic variability. Here I present a computational model roughly based on the assumptions made in their paper and investigate 1) whether factors other than female choosiness can impact GMV fitness, and 2) whether and under which conditions there can exist &lt;a href='https://en.wikipedia.org/wiki/Fisherian_runaway'&gt;Fisherian runaway selection&lt;/a&gt; on both female choosiness and the GMV genotype.&lt;/p&gt;&lt;h2 id=&quot;requirements&quot;&gt;Requirements&lt;/h2&gt;&lt;p&gt;Mac OS X requirements:&lt;/p&gt;&lt;pre&gt;&lt;code&gt;brew install numpy scipy
+brew install gnuplot
+brew install jq&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;I strongly recommend using a virtual environment for Python such as &lt;a href='https://gist.github.com/eliangcs/43a51f5c95dd9b848ddc'&gt;pyenv&lt;/a&gt;, since you will also need to install following packages from PyPi:&lt;/p&gt;&lt;pre&gt;&lt;code&gt;pip install matplotlib pandas tblib tqdm asteval pygam&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Then,&lt;/p&gt;&lt;pre&gt;&lt;code&gt;git clone https://github.com/LocusOfCtrl/gmvh&amp;#95;sim
+cd gmvh&amp;#95;sim&lt;/code&gt;&lt;/pre&gt;&lt;h2 id=&quot;running&quot;&gt;Running&lt;/h2&gt;&lt;h3 id=&quot;basics&quot;&gt;Basics&lt;/h3&gt;&lt;p&gt;First we need to know whether things work. We can find out by running a small simulation with default settings:&lt;/p&gt;&lt;pre&gt;&lt;code class=&quot;bash&quot;&gt;python simulation.py --generations 3 --seed 1234 | jq -c \
+    '{&amp;quot;gen&amp;quot;: .generation, &amp;quot;counts&amp;quot;:.genotypes}'
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;where &lt;code&gt;&amp;ndash;generations&lt;/code&gt; parameter is the number of generations to run and &lt;code&gt;&amp;ndash;seed&lt;/code&gt; is random number generator seed for reproducibility (if not given a set value, the output will vary every time the program is run). The &lt;code&gt;jq&lt;/code&gt; command simply filters out the output by &lt;code&gt;.genotypes&lt;/code&gt; field. The output should be:&lt;/p&gt;&lt;pre&gt;&lt;code&gt;{&amp;quot;gen&amp;quot;:0,&amp;quot;counts&amp;quot;:{&amp;quot;1&amp;quot;:181,&amp;quot;total&amp;quot;:365,&amp;quot;2&amp;quot;:184}}
+{&amp;quot;gen&amp;quot;:1,&amp;quot;counts&amp;quot;:{&amp;quot;1&amp;quot;:165,&amp;quot;total&amp;quot;:381,&amp;quot;2&amp;quot;:216}}
+{&amp;quot;gen&amp;quot;:2,&amp;quot;counts&amp;quot;:{&amp;quot;1&amp;quot;:149,&amp;quot;total&amp;quot;:360,&amp;quot;2&amp;quot;:211}}
+{&amp;quot;gen&amp;quot;:3,&amp;quot;counts&amp;quot;:{&amp;quot;1&amp;quot;:142,&amp;quot;total&amp;quot;:359,&amp;quot;2&amp;quot;:217}}
+{&amp;quot;gen&amp;quot;:&amp;quot;&amp;#42;&amp;quot;,&amp;quot;counts&amp;quot;:{&amp;quot;1&amp;quot;:&amp;#91;181,165,149,142&amp;#93;,&amp;quot;total&amp;quot;:&amp;#91;365,381,360,359&amp;#93;,&amp;quot;2&amp;quot;:&amp;#91;184,216,211,217&amp;#93;}}&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;The generation labeled as &quot;0&quot; represents the initial conditions. The last line (generation &quot;&amp;#42;&quot;) is simply a summary of the simulation. Now let's see what happens when we let the simulation run for 100 generations:&lt;/p&gt;&lt;pre&gt;&lt;code class=&quot;bash&quot;&gt; python simulation.py --generations 100 --seed 1234 | tail -n5 | head -n4 \
+    | jq -c '.genotypes'
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;The output is:&lt;/p&gt;&lt;pre&gt;&lt;code&gt;{&amp;quot;1&amp;quot;:252,&amp;quot;total&amp;quot;:341,&amp;quot;2&amp;quot;:89}
+{&amp;quot;1&amp;quot;:261,&amp;quot;total&amp;quot;:358,&amp;quot;2&amp;quot;:97}
+{&amp;quot;1&amp;quot;:271,&amp;quot;total&amp;quot;:366,&amp;quot;2&amp;quot;:95}
+{&amp;quot;1&amp;quot;:243,&amp;quot;total&amp;quot;:340,&amp;quot;2&amp;quot;:97}&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;The genotype &quot;1&quot; (associated with the less variable phenotype) appears to be winning with default settings. However, the trend is weak and could be due to &lt;a href='https://en.wikipedia.org/wiki/Genetic_drift'&gt;genetic drift&lt;/a&gt;. To verify that the effect is not random, we would need to repeat the simulation a sufficient number of times.&lt;/p&gt;&lt;h3 id=&quot;workflow&amp;#95;1&amp;#95;-&amp;#95;time&amp;#95;series&amp;#95;plots&amp;#95;and&amp;#95;mating&amp;#95;systems&quot;&gt;Workflow 1 - time series plots and mating systems&lt;/h3&gt;&lt;h4 id=&quot;does&amp;#95;the&amp;#95;data&amp;#95;fit&amp;#95;the&amp;#95;model?&quot;&gt;Does the data fit the model?&lt;/h4&gt;&lt;p&gt;Above, we ran a single instance of &lt;code&gt;simulation.py&lt;/code&gt;. For anything interesting, we would need to run more than one instance. This can be sped up by using the &lt;code&gt;xargs&lt;/code&gt; scheduler:&lt;/p&gt;&lt;pre&gt;&lt;code class=&quot;bash&quot;&gt;seq 10 | sed 's/\&amp;#40;.&amp;#42;\&amp;#41;/out\1.ndjson/g' | xargs -P 4 -n 1 \
+    python simulation.py --generations 100 --num&amp;#95;pools 100 \
+    --pool&amp;#95;size 32 --female&amp;#95;choosiness 0.6 --male&amp;#95;choosiness 0.2 \
+    --output&amp;#95;dir out --output&amp;#95;file
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;This will create a directory called &lt;code&gt;out&lt;/code&gt;, spawn 4 worker processes via &lt;code&gt;xargs&lt;/code&gt;, and distribute tasks across those processes in the form of file names generated by the &lt;code&gt;seq&lt;/code&gt; and &lt;code&gt;sed&lt;/code&gt; commands. Because this workflow is very common, I have written a wrapper (&lt;code&gt;conduct.py&lt;/code&gt;) which removes the need to use an external scheduler and which lets one specify groups of parameters in a config-like file. The following line is equivalent to the previous:&lt;/p&gt;&lt;pre&gt;&lt;code class=&quot;bash&quot;&gt;python conduct.py --experiment female.pref --output&amp;#95;dir out
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;where &lt;code&gt;female.pref&lt;/code&gt; is defined as an entry in &lt;code&gt;experiments.py&lt;/code&gt; that looks like this:&lt;/p&gt;&lt;pre&gt;&lt;code class=&quot;python&quot;&gt;&amp;quot;female.pref&amp;quot;: {
+    # females are fairly choosy, males not so much
+    &amp;quot;pool&amp;#95;size&amp;quot;: 32,
+    &amp;quot;num&amp;#95;pools&amp;quot;: 100,
+    &amp;quot;generations&amp;quot;: 100,
+    &amp;quot;female&amp;#95;choosiness&amp;quot;: 0.6,
+    &amp;quot;male&amp;#95;choosiness&amp;quot;: 0.2,
+    &amp;quot;seed&amp;quot;: range&amp;#40;10&amp;#41;
+},
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Because &lt;code&gt;seed&lt;/code&gt; argument above is an array of ten integers, ten simulations with identical initial conditions (except for the random number generator seed) will be repeated.&lt;/p&gt;&lt;p&gt;After the simulation is finished (using either method), we do some post-processing on the output:&lt;/p&gt;&lt;pre&gt;&lt;code class=&quot;bash&quot;&gt;jq -rc '&amp;#91;input&amp;#95;filename, .generation, .genotypes.&amp;quot;2&amp;quot;/.genotypes.&amp;quot;total&amp;quot;&amp;#93;
+| @csv'  out/out&amp;#42;.ndjson&amp;#42; | python csvtool.py pivot --index 1 --columns 0 \
+--values 2 --rename&amp;#95;columns &amp;gt; out/piv.csv
+
+gnuplot -c plot/series.gnu out/piv.csv out/fig-female.pref.svg &amp;quot;generation&amp;quot;
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;&lt;img src=&quot;https://raw.githubusercontent.com/LocusOfCtrl/gmvh_sim/master/images/fig-female.pref.svg?sanitize=true&quot; alt=&quot;evolution over many generations&quot; /&gt;&lt;/p&gt;&lt;p&gt;This looks like fairly strong positive selection given moderate conditions. There is a theoretical reason why this process follows a logistic curve. The slope of this curve is estimated from a stochastic model and stored in &lt;code&gt;.delta.&amp;#42;.kl&lt;/code&gt; field of the last output object (which can be obtained using &lt;code&gt;select&amp;#40;.generation==&amp;quot;&amp;#42;&amp;quot;&amp;#41;&lt;/code&gt; filter). Let's see if we get a good fit:&lt;/p&gt;&lt;pre&gt;&lt;code class=&quot;bash&quot;&gt;gnuplot -c plot/series&amp;#95;fit.gnu out/piv.csv out/fig-female.pref-fit.svg \
+    $&amp;#40; jq 'select&amp;#40;.generation==&amp;quot;&amp;#42;&amp;quot;&amp;#41;|.delta.&amp;quot;2&amp;quot;.kl.est' out/out&amp;#42;.ndjson&amp;#42; | \
+    awk '{a+=$0}END{print a/NR}' &amp;#41;
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;&lt;img src=&quot;https://raw.githubusercontent.com/LocusOfCtrl/gmvh_sim/master/images/fig-female.pref-fit.svg?sanitize=true&quot; alt=&quot;model fit&quot; /&gt;&lt;/p&gt;&lt;p&gt;Although the fit is generally quite good, it may sometimes underestimate the curvature near the &quot;elbow,&quot; as seems to be the case above. This is because when evolution proceeds in a large number of small pools, it will tend to slow down as the pools become saturated. The slowdown can be mitigated by increasing the &lt;code&gt;&amp;ndash;dispersal&lt;/code&gt; parameter, which controls the portion of each pool that is assigned at random to a different pool after each generation.&lt;/p&gt;&lt;h4 id=&quot;evaluating&amp;#95;fertility&amp;#95;and&amp;#95;mating&amp;#95;systems&quot;&gt;Evaluating fertility and mating systems&lt;/h4&gt;&lt;p&gt;Different settings of female and male choosiness result in different types of &lt;a href='https://en.wikipedia.org/wiki/Mating_system'&gt;mating systems&lt;/a&gt;. The following plots should help us determine which mating system we're dealing with:&lt;/p&gt;&lt;pre&gt;&lt;code class=&quot;bash&quot;&gt;jq -rc 'select&amp;#40;.generation==&amp;quot;&amp;#42;&amp;quot;&amp;#41;' out/out&amp;#42;.ndjson&amp;#42; | python mating&amp;#95;stats.py \
+    --outmales out/summary&amp;#95;males.csv --outfemales out/summary&amp;#95;females.csv
+
+gnuplot -c plot/multi.gnu out/summary&amp;#95;males.csv out/fig-female.pref-males.svg \
+    &amp;quot;partners per male&amp;quot;
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;&lt;img src=&quot;https://raw.githubusercontent.com/LocusOfCtrl/gmvh_sim/master/images/fig-female.pref-males.svg?sanitize=true&quot; alt=&quot;male qualities&quot; /&gt;&lt;/p&gt;&lt;p&gt;The term &quot;partners&quot; plotted on the X axis refers to the number of partners with whom the male had attempted to produce offspring, so it's not directly translatable to &quot;has had sex for leisure&quot; (which may be one misinterpretation of it). The plot above looks like a type of &lt;i&gt;facultative polygyny&lt;/i&gt; where a half of all males are never selected for mating, a fifth mate with one female, another fifth with two females, and large &quot;harems&quot; are quite rare. Note that at levels above one mating partner, male quality increases only slightly (with some &lt;a href='https://en.wikipedia.org/wiki/Regression_toward_the_mean'&gt;regression toward the mean&lt;/a&gt; at the extreme end), while the males who have not been selected for mating have dramatically lower average quality compared even to the males who have only one partner. In popular culture, this is roughly known as the &quot;incel&quot; phenomenon. &lt;/p&gt;&lt;p&gt;If a similar situation holds in the real world, one could hypothesize here that male mating status should serve as a strong quality signal to other females (mated males are perceived as more desirable than non-mated ones).&lt;/p&gt;&lt;pre&gt;&lt;code class=&quot;bash&quot;&gt;gnuplot -c plot/multi.gnu out/summary&amp;#95;females.csv out/fig-female.pref-females.svg \
+    &amp;quot;children per female&amp;quot;
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;&lt;img src=&quot;https://raw.githubusercontent.com/LocusOfCtrl/gmvh_sim/master/images/fig-female.pref-females.svg?sanitize=true&quot; alt=&quot;female qualities&quot; /&gt;&lt;/p&gt;&lt;p&gt;Unlike with males, the simulation attempts to mate all females, though not all of them may be assigned any children (i.e. there may be a fair amount of childless females). The proportion of childless females can be adjusted with &lt;code&gt;&amp;ndash;binom&amp;#95;failures&lt;/code&gt; parameter, which in human terms can be thought to model the social pressure to have children. The number of children assigned to a given female is weakly determined by female quality (the strength of the effect is controlled by &lt;code&gt;&amp;ndash;qual&amp;#95;x&amp;#95;num&amp;#95;kids&lt;/code&gt; parameter).&lt;/p&gt;&lt;p&gt;Unsurprisingly, the left pane of the figure reproduces the &lt;a href='https://en.wikipedia.org/wiki/Negative_binomial_distribution'&gt;negative binomial distribution&lt;/a&gt;, which is the distribution from which the number of children for each female is sampled in the simulation. This distribution gives sensible results under the conditions of high fertility (see &lt;a href='https://raw.githubusercontent.com/LocusOfCtrl/gmvh_sim/master/images/nigeria.svg?sanitize=true'&gt;this plot&lt;/a&gt; of &lt;a href='https://dhsprogram.com/pubs/pdf/fr293/fr293.pdf'&gt;2013 Nigerian DHS data&lt;/a&gt;) as well as when fertility is at the replacement level.&lt;/p&gt;&lt;h4 id=&quot;what&amp;#95;happens&amp;#95;when&amp;#95;nobody&amp;#95;is&amp;#95;choosy?&quot;&gt;What happens when nobody is choosy?&lt;/h4&gt;&lt;p&gt;In this simulation, &quot;choosiness&quot; controls the &lt;a href='https://en.wikipedia.org/wiki/Hypergamy'&gt;hypergamous&lt;/a&gt; tendency to reject the best available partner. When choosiness is zero, mating is still assortative (within each pool) but with many more committed matches aka &quot;marriages.&quot; We now model the situation where both sexes are not &quot;choosy&quot;: &lt;/p&gt;&lt;pre&gt;&lt;code class=&quot;bash&quot;&gt;python conduct.py --experiment model0 --output&amp;#95;dir out
+
+jq -rc '&amp;#91;input&amp;#95;filename, .generation, .genotypes.&amp;quot;2&amp;quot;/.genotypes.&amp;quot;total&amp;quot;&amp;#93;
+| @csv'  out/out&amp;#42;.ndjson&amp;#42; | python csvtool.py pivot --index 1 --columns 0 \
+--values 2 --rename&amp;#95;columns &amp;gt; out/piv.csv
+
+gnuplot -c plot/series&amp;#95;fit.gnu out/piv.csv out/fig-model0-fit.svg \
+    $&amp;#40; jq 'select&amp;#40;.generation==&amp;quot;&amp;#42;&amp;quot;&amp;#41;|.delta.&amp;quot;2&amp;quot;.kl.est' out/out&amp;#42;.ndjson&amp;#42; | \
+    awk '{a+=$0}END{print a/NR}' &amp;#41;
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;&lt;img src=&quot;https://raw.githubusercontent.com/LocusOfCtrl/gmvh_sim/master/images/fig-model0-fit.svg?sanitize=true&quot; alt=&quot;null model fit&quot; /&gt;&lt;/p&gt;&lt;p&gt;By 100th generation, the GMV genotype is almost extinct.&lt;/p&gt;&lt;pre&gt;&lt;code class=&quot;bash&quot;&gt;jq -rc 'select&amp;#40;.generation==&amp;quot;&amp;#42;&amp;quot;&amp;#41;' out/out&amp;#42;.ndjson&amp;#42; | python mating&amp;#95;stats.py \
+    --outmales out/summary&amp;#95;males.csv --outfemales out/summary&amp;#95;females.csv
+
+gnuplot -c plot/multi.gnu out/summary&amp;#95;males.csv out/fig-model0-males.svg \
+    &amp;quot;partners per male&amp;quot;
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;&lt;img src=&quot;https://raw.githubusercontent.com/LocusOfCtrl/gmvh_sim/master/images/fig-model0-males.svg?sanitize=true&quot; alt=&quot;male qualities&quot; /&gt;&lt;/p&gt;&lt;p&gt;The distribution of female frequencies and qualities vs number of children looks very similar to &lt;code&gt;female.pref&lt;/code&gt; results described previously, so I do not show it. The left pane suggests that we have something similar to &lt;i&gt;monogamy&lt;/i&gt;. By default, males are assigned somewhat longer reproductive lifespans compared to females (this is controlled by &lt;code&gt;&amp;ndash;male&amp;#95;lifespan&lt;/code&gt; parameter). This means that some portion of older males participate in mating again in the subsequent generation, which explains the 20% or so of males with two partners. Note however that the average quality of &quot;incel&quot; males has not improved under monogamy &amp;ndash; it even declined somewhat. This is because with more males being matched overall, this particular cohort of males is now sampled from a more extreme lower end of the quality distribution.&lt;/p&gt;&lt;h3 id=&quot;workflow&amp;#95;2&amp;#95;-&amp;#95;single&amp;#95;effects&quot;&gt;Workflow 2 - single effects&lt;/h3&gt;&lt;h4 id=&quot;effect&amp;#95;of&amp;#95;female&amp;#95;choosiness&quot;&gt;Effect of female choosiness&lt;/h4&gt;&lt;p&gt;This is very similar to the above except we're profiling female choice instead of male choice (fixing the latter to 0.2):&lt;/p&gt;&lt;pre&gt;&lt;code class=&quot;bash&quot;&gt;mkdir out-female&amp;#95;choosiness
+python conduct.py --experiment female&amp;#95;choosiness --male&amp;#95;choosiness 0.2 \
+    --num&amp;#95;pools 100 | gzip &amp;gt; out-female&amp;#95;choosiness/out.ndjson.gz
+
+gunzip -c out-female&amp;#95;choosiness/out.ndjson.gz | jq -rc \
+    '&amp;#91;.args.seed, .args.female&amp;#95;choosiness, .delta.&amp;quot;2&amp;quot;.kl.est &amp;#93; | @csv' \
+    &amp;gt; out-female&amp;#95;choosiness/kl.csv
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;When female choosiness is high, the relative fitness of the variable genotype becomes vary variable. So ExpectileGAM is more appropriate here as it allows for non-constant variance:&lt;/p&gt;&lt;pre&gt;&lt;code class=&quot;bash&quot;&gt;python csvtool.py smooth --in out-female&amp;#95;choosiness/kl.csv \
+    --columns 1 2 --no&amp;#95;out&amp;#95;header --model expectile --n&amp;#95;splines 12 \
+    &amp;gt; out-female&amp;#95;choosiness/kl-smooth.csv
+
+gnuplot -c plot/circles&amp;#95;gam.gnu out-female&amp;#95;choosiness/kl.csv \
+    out-female&amp;#95;choosiness/kl-smooth.csv out-female&amp;#95;choosiness/fig-gam.svg \
+    &amp;quot;female choosiness&amp;quot;
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;&lt;img src=&quot;https://raw.githubusercontent.com/LocusOfCtrl/gmvh_sim/master/images-single/fig-female_choosiness-kl-gam.svg?sanitize=true&quot; alt=&quot;profile line plot&quot; /&gt;&lt;/p&gt;&lt;h4 id=&quot;effect&amp;#95;of&amp;#95;male&amp;#95;choosiness&quot;&gt;Effect of male choosiness&lt;/h4&gt;&lt;p&gt;We will vary male choosiness while keeping female choosiness fixed at 0.4. There is already an experiment defined in &lt;code&gt;experiments.py&lt;/code&gt; for this purpose:&lt;/p&gt;&lt;pre&gt;&lt;code class=&quot;bash&quot;&gt;mkdir out-male&amp;#95;choosiness
+python conduct.py --experiment male&amp;#95;choosiness --female&amp;#95;choosiness 0.4 \
+    --num&amp;#95;pools 100 | gzip &amp;gt; out-male&amp;#95;choosiness/out.ndjson.gz
+
+gunzip -c out-male&amp;#95;choosiness/out.ndjson.gz | jq -rc \
+    '&amp;#91;.args.seed, .args.male&amp;#95;choosiness, .delta.&amp;quot;2&amp;quot;.kl.est &amp;#93; | @csv' \
+    &amp;gt; out-male&amp;#95;choosiness/kl.csv
+
+python csvtool.py smooth --in out-male&amp;#95;choosiness/kl.csv \
+    --columns 1 2 --no&amp;#95;out&amp;#95;header --model linear --n&amp;#95;splines 10 \
+    &amp;gt; out-male&amp;#95;choosiness/kl-smooth.csv
+
+gnuplot -c plot/circles&amp;#95;gam.gnu out-male&amp;#95;choosiness/kl.csv \
+    out-male&amp;#95;choosiness/kl-smooth.csv out-male&amp;#95;choosiness/fig-gam.svg \
+    &amp;quot;male choosiness&amp;quot;
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;&lt;img src=&quot;https://raw.githubusercontent.com/LocusOfCtrl/gmvh_sim/master/images-single/fig-male_choosiness-kl-gam.svg?sanitize=true&quot; alt=&quot;profile line plot&quot; /&gt;&lt;/p&gt;&lt;p&gt;Above I used LinearGAM because the variance seems roughly constant across different effect sizes, something that is not the case with female choosiness.&lt;/p&gt;&lt;p&gt;The plot shows an interesting effect: there is a peak in relative fitness favoring the GMV genotype when male choosiness is close to 0.8. In &lt;a href='#why-does-male-choosiness-matter'&gt;this section&lt;/a&gt; I look into why this is the case.&lt;/p&gt;&lt;h4 id=&quot;other&amp;#95;effects&quot;&gt;Other effects&lt;/h4&gt;&lt;p&gt;To generate plots of all single effects supported by the simulation:&lt;/p&gt;&lt;pre&gt;&lt;code class=&quot;bash&quot;&gt;mkdir out-single
+
+python conduct.py --num&amp;#95;pools 100 --experiment . | gzip \
+    &amp;gt; out-single/out.ndjson.gz
+
+python make&amp;#95;plots.py out-single
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;I do not show the figures on this page as there are too many, but you can visit &lt;a href='doc/single_effects.md'&gt;the index page&lt;/a&gt; that lists them.&lt;/p&gt;&lt;h3 id=&quot;workflow&amp;#95;3&amp;#95;-&amp;#95;analysis&amp;#95;of&amp;#95;interactions&quot;&gt;Workflow 3 - analysis of interactions&lt;/h3&gt;&lt;h4 id=&quot;change&amp;#95;in&amp;#95;prevalence&quot;&gt;Change in prevalence&lt;/h4&gt;&lt;p&gt;The mating process in each pool is competitive, i.e. males of one genotype get to compete with males of another genotype, as well as with each other. The choosiness of a given individual is weakly affected by the quality of its phenotype (the extent of this effect can be controlled with &lt;code&gt;&amp;ndash;qual&amp;#95;x&amp;#95;choosiness&lt;/code&gt; parameter). It may be interesting to see what the GMV fitness looks like given varying levels of female and male choosiness. In other words, we would like to model the &lt;i&gt;interaction&lt;/i&gt; between male and female choosiness. To do this, we configure an experiment labeled &lt;code&gt;fcmc&lt;/code&gt; like so:&lt;/p&gt;&lt;pre&gt;&lt;code class=&quot;python&quot;&gt;&amp;quot;fcmc&amp;quot;: {
+    &amp;quot;inheritance&amp;#95;pattern&amp;quot;: &amp;quot;male&amp;quot;,
+    &amp;quot;g2&amp;#95;male&amp;#95;variability&amp;quot;: 1.5,
+    &amp;quot;g2&amp;#95;female&amp;#95;variability&amp;quot;: 1.0,
+    &amp;quot;female&amp;#95;choosiness&amp;quot;: np.linspace&amp;#40;0.0, 1.0, 21&amp;#41;,
+    &amp;quot;male&amp;#95;choosiness&amp;quot;: np.linspace&amp;#40;0.0, 1.0, 21&amp;#41;,
+    &amp;quot;seed&amp;quot;: range&amp;#40;30&amp;#41;,
+    &amp;quot;output&amp;#95;level&amp;quot;: 0
+},
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;There are three fields that have 1D arrays assigned to them: &lt;code&gt;female&amp;#95;choosiness&lt;/code&gt;, &lt;code&gt;male&amp;#95;choosiness&lt;/code&gt;, and &lt;code&gt;seed&lt;/code&gt;. The first two are the parameters of interest, while the third one is essentially the number of samples. This configuration produces a 3D  &lt;i&gt;parameter grid&lt;/i&gt; with 13,230 entries (21 &amp;#42; 21 &amp;#42; 30 = 13,230). The larger the grid, the longer it will take to run the entire setup. We run the simulation like so:&lt;/p&gt;&lt;pre&gt;&lt;code class=&quot;bash&quot;&gt;mkdir out-fcmc
+python conduct.py --experiment fcmc --qual&amp;#95;x&amp;#95;num&amp;#95;kids 0.2 --num&amp;#95;pools 100 \
+    | gzip &amp;gt; out-fcmc/out.ndjson.gz
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;The &lt;code&gt;&amp;ndash;qual&amp;#95;x&amp;#95;num&amp;#95;kids&lt;/code&gt; and &lt;code&gt;&amp;ndash;num&amp;#95;pools&lt;/code&gt; command-line argument overrides the default settings of 0.1 and 5, respectively. Lower number of pools results in faster run time at the expense of lower accuracy. Note that there is an essential difference between two pool parameters: &lt;code&gt;num&amp;#95;pools&lt;/code&gt; has almost no effect on the simulation, while large &lt;code&gt;pool&amp;#95;size&lt;/code&gt; produces very efficient matchings between individuals of opposite sex (aka &quot;large city + Tinder&quot; situation). When &lt;code&gt;pool&amp;#95;size&lt;/code&gt; is small, the simulation models the conditions of small villages/groups, which were probably found throughout most of human history.&lt;/p&gt;&lt;p&gt;Let's see how the GMV genotype (labeled by the simulation as genotype &quot;2&quot;) does over the course of the simulation. To do this, we take its last observed frequency, subtract from it the initial frequency of 0.5, and scale the result such that +100 represents 100% increase in frequency (i.e. complete takeover) and -100 represents 100% decline (i.e. extinction):&lt;/p&gt;&lt;pre&gt;&lt;code class=&quot;bash&quot;&gt;gunzip -c  out-fcmc/out.ndjson.gz | jq -rc 'select&amp;#40;.generation==&amp;quot;&amp;#42;&amp;quot;&amp;#41; |&amp;#91;.args.male&amp;#95;choosiness,
+.args.female&amp;#95;choosiness, .genotypes.&amp;quot;2&amp;quot;&amp;#91;-1&amp;#93;, .genotypes.&amp;quot;total&amp;quot;&amp;#91;-1&amp;#93;&amp;#93; | @csv' \
+| python csvtool.py aggregate --no&amp;#95;out&amp;#95;header --keys 0 1 --function sum \
+    &amp;gt; out-fcmc/out-p2.csv
+
+bash plot/3d.sh out-fcmc/out-p2.csv '200&amp;#42;&amp;#40;$3/$4-.5&amp;#41;' 0.06 &amp;quot;male choosiness&amp;quot; \
+&amp;quot;female choosiness&amp;quot; &amp;quot;% change in prevalence&amp;quot; out-fcmc/fig-fcmc-p2-3d.svg
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;&lt;img src=&quot;https://raw.githubusercontent.com/LocusOfCtrl/gmvh_sim/master/images/fig-fcmc-p2-3d.svg?sanitize=true&quot; alt=&quot;mc endstate&quot; /&gt;&lt;/p&gt;&lt;p&gt;There is a nearly complete takeover by the GMV genotype as female choosiness approaches 1.0. The populations inside inside the bottom-left contour experienced slight negative selection against the variable male genotype (its prevalence decreased by approximately 20%), while populations almost everywhere outside of that zone experienced positive selection.&lt;/p&gt;&lt;h4 id=&quot;the&amp;#95;fitness&amp;#95;landscape&amp;#95;of&amp;#95;the&amp;#95;variable&amp;#95;male&amp;#95;genotype&quot;&gt;The fitness landscape of the variable male genotype&lt;/h4&gt;&lt;p&gt;The change in prevalence may be easy to interpret, but it does not measure evolutionary pressure accurately. To estimate the latter, it helps to think in terms of growth rates. Suppose we have two subpopulations 1 and 2 growing exponentially at rates &lt;i&gt;k1&lt;/i&gt; and &lt;i&gt;k2&lt;/i&gt;. Since the simulation ensures that the overall number individuals remains stable over time (replacement-level reproduction), we can only observe the difference in growth rates &lt;i&gt;d = k2 - k1&lt;/i&gt;, which is also the slope of the logistic curve shown previously. This difference tells us how much better the GMV genotype (&quot;2&quot;) is doing with respect to baseline genotype (&quot;1&quot;) under competitive mating.&lt;/p&gt;&lt;p&gt;The difference in growth rates &lt;i&gt;d&lt;/i&gt; represents a measure of &lt;a href='https://en.wikipedia.org/wiki/Evolutionary_pressure'&gt;evolutionary pressure&lt;/a&gt;. If we take the exponent of &lt;i&gt;d&lt;/i&gt;, we get &lt;i&gt;relative fitness&lt;/i&gt; of genotype 2 with respect to genotype 1. Thus, when &lt;i&gt;d&lt;/i&gt; is zero, the relative fitness of &lt;i&gt;g2&lt;/i&gt; with respect to &lt;i&gt;g1&lt;/i&gt; is equal to 1.0 (meaning the fitness levels of &lt;i&gt;g2&lt;/i&gt; and &lt;i&gt;g1&lt;/i&gt; are the same). I will refer to &lt;i&gt;d&lt;/i&gt; as &lt;i&gt;log relative fitness&lt;/i&gt;.&lt;/p&gt;&lt;p&gt;Once we have a single number that represents relative fitness, we can make more complicated analyses such as the one discussed here. The estimated value of &lt;i&gt;d&lt;/i&gt; is stored inside &lt;code&gt;.delta&lt;/code&gt; field in the last JSON object in the output. Let's plot how the values of &lt;i&gt;d&lt;/i&gt; for the variable male genotype vary with female and male choosiness:&lt;/p&gt;&lt;pre&gt;&lt;code class=&quot;bash&quot;&gt;gunzip -c out-fcmc/out.ndjson.gz | jq -rc \
+'&amp;#91;.args.male&amp;#95;choosiness, .args.female&amp;#95;choosiness, .delta.&amp;quot;2&amp;quot;.kl.est&amp;#93; | @csv' \
+| python csvtool.py smooth3d --n&amp;#95;splines 10 10 12 12 --no&amp;#95;out&amp;#95;header \
+    &amp;gt; out-fcmc/fcmc-kl-smooth.csv
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;The smoothing step fits an &lt;a href='https://en.wikipedia.org/wiki/Quantile_regression'&gt;expectile&lt;/a&gt; &lt;a href='https://en.wikipedia.org/wiki/Generalized_additive_model'&gt;GAM&lt;/a&gt; to the collected &lt;i&gt;d&lt;/i&gt; estimates. Further smoothing is applied during plotting through simple gaussian blur of radius 0.02 (the size of the radius is best determined by eyeballing the contours):&lt;/p&gt;&lt;pre&gt;&lt;code class=&quot;bash&quot;&gt;bash plot/3d.sh out-fcmc/fcmc-kl-smooth.csv '$3' 0.02 &amp;quot;male choosiness&amp;quot; \
+&amp;quot;female choosiness&amp;quot; &amp;quot;log relative fitness&amp;quot; out-fcmc/fig-fcmc-kl-3d.svg
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;&lt;img src=&quot;https://raw.githubusercontent.com/LocusOfCtrl/gmvh_sim/master/images/fig-fcmc-kl-3d.svg?sanitize=true&quot; alt=&quot;mc kl&quot; /&gt;&lt;/p&gt;&lt;p&gt;This looks much flatter than the previous plot. The ridge when male choosiness is close to 0.8 has almost disappeared. The reason for this should become obvious after considering the slope of the logistic function which models evolution rate in our case: the slope is highest when &lt;i&gt;y ~ 0.5&lt;/i&gt;. This means that when discrepancy in fitness levels is large and population is split equally between two competing genotypes, the population approaches the condition of genetic homogeneity very quickly, after which the absolute rate of selection slows down significantly. Notably, this is precisely Fisher's &lt;a href='https://en.wikipedia.org/wiki/Fisher%27s_fundamental_theorem_of_natural_selection'&gt;fundamental theorem of natural selection&lt;/a&gt;: the rate of increase in fitness of the population (roughly: the rate of evolution) is equal to the genetic variance of the population (which, in the simple binomial case, is expressed as &lt;i&gt;pq&lt;/i&gt; and reaches a maximum when &lt;i&gt;p = q = 0.5&lt;/i&gt;).&lt;/p&gt;&lt;p&gt;In other words, depending on the initial conditions and the length of the time period, even small discrepancies in fitness may have significant impact. To better visualize how &lt;i&gt;d&lt;/i&gt; varies depending on the two traits of interest, we construct a &lt;i&gt;fitness landscape&lt;/i&gt;, which is essentially a 2D contour plot of the 3D figure above:&lt;/p&gt;&lt;pre&gt;&lt;code class=&quot;bash&quot;&gt;gnuplot -c plot/contours.gnu out-fcmc/fcmc-kl-smooth.csv \
+out-fcmc/fig-fcmc-kl-contours.svg 0.02 &amp;quot;male choosiness&amp;quot; &amp;quot;female choosiness&amp;quot;
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;&lt;img src=&quot;https://raw.githubusercontent.com/LocusOfCtrl/gmvh_sim/master/images/fig-fcmc-kl-contours.svg?sanitize=true&quot; alt=&quot;mc contours&quot; /&gt;&lt;/p&gt;&lt;p&gt;It may be interesting to gauge the inequality of sexual outcomes among males (as measured by the &lt;a href='https://en.wikipedia.org/wiki/Gini_coefficient'&gt;Gini coefficient&lt;/a&gt; on the number of partners):&lt;/p&gt;&lt;pre&gt;&lt;code class=&quot;bash&quot;&gt;gunzip -c out-fcmc/out.ndjson.gz | python annotate.py --gini | jq -rc \
+'&amp;#91;.args.male&amp;#95;choosiness, .args.female&amp;#95;choosiness, .malequal&amp;#95;x&amp;#95;matches.gini&amp;#93; | @csv' \
+| python csvtool.py smooth3d --n&amp;#95;splines 12 12 12 12 --no&amp;#95;out&amp;#95;header \
+&amp;gt; out-fcmc/fcmc-gini-smooth.csv
+
+gnuplot -c plot/contours.gnu out-fcmc/fcmc-gini-smooth.csv \
+out-fcmc/fig-fcmc-gini-contours.svg 0.02 &amp;quot;male choosiness&amp;quot; &amp;quot;female choosiness&amp;quot; 0 1
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;&lt;img src=&quot;https://raw.githubusercontent.com/LocusOfCtrl/gmvh_sim/master/images/fig-fcmc-gini-contours.svg?sanitize=true&quot; alt=&quot;mc gini&quot; /&gt;&lt;/p&gt;&lt;h4 id=&quot;why&amp;#95;does&amp;#95;male&amp;#95;choosiness&amp;#95;matter?&quot;&gt;Why does male choosiness matter?&lt;/h4&gt;&lt;p&gt;In most species where sexual selection is present, it is driven by female choice as opposed to male choice. Nevertheless, it is interesting to consider the case of high male choosiness, if only to understand why it affects the fitness of GMV males at all. A first guess might be that high male choosiness leads to more polygynous societies since it will increase the number of reluctant uncommitted males, and the females that would otherwise be paired to those males end up becoming single mothers while mating with higher quality males from the upper percentile(s) instead. This is not exactly wrong, but it doesn't explain why selection for the GMV genotype then declines as male choosiness reaches its maximum.&lt;/p&gt;&lt;p&gt;It turns out that male choosiness affects sorting of males by quality, and the shape of the resulting distribution affects selection for the variable male genotype. For example, if we select two points on the contour plot above, one with female choosiness 0.6 and male choosiness 0.2 (&lt;code&gt;female.pref&lt;/code&gt;), another with female choosiness 0.2 and male choosiness 0.8 (&lt;code&gt;male.pref&lt;/code&gt;), we should get similar values of log relative fitness in both cases, at approximately 0.06 or so, and thus similar intensity of selection for the variable genotype despite different initial settings. Assuming the data for these experiments is in &lt;code&gt;out-female.pref&lt;/code&gt; and &lt;code&gt;out-male.pref&lt;/code&gt;, we can compare the mating systems with respect to males:&lt;/p&gt;&lt;pre&gt;&lt;code class=&quot;bash&quot;&gt;gnuplot -c plot/compare&amp;#95;mating.gnu out-female.pref/summary&amp;#95;males.csv \
+out-male.pref/summary&amp;#95;males.csv fig-compare&amp;#95;prefs.svg &amp;quot;partners per male&amp;quot; \
+&amp;quot;female.pref&amp;quot; &amp;quot;male.pref&amp;quot;
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;&lt;img src=&quot;https://raw.githubusercontent.com/LocusOfCtrl/gmvh_sim/master/images/fig-compare_prefs.svg?sanitize=true&quot; alt=&quot;comparison of mating systems&quot; /&gt;&lt;/p&gt;&lt;p&gt;The mating system under strong female preference is actually more polygynous (left pane). What matters for the GMV fitness, however, is whether high-quality males are mated more frequently, as well as whether low-quality males are consistently rejected (right pane). Raising male choosiness further to its maximum value of 1.0 results in even more benefit to high-quality males, however the slope of their quality distribution becomes more linear (not shown), that is low-quality males are not doing as badly (relative to medium-quality ones) as when the male choosiness is at 0.8.&lt;/p&gt;&lt;p&gt;Why is this interesting? Because it's conceivable, in my opinion, that the mating/sorting system we are seeing when male choosiness is around 0.8 could be established through mechanisms other than through male choice &amp;ndash; for example, through arranged marriage. To summarize, when choosiness by either sex is high, there is a variety of polygynous and semi-polygynous mating systems that lead to greater relative GMV fitness (with female choice having by far the greatest effect), but only near-monogamy has a stabilizing effect on males.&lt;/p&gt;&lt;h4 id=&quot;fisherian&amp;#95;runaway&amp;#95;selection&amp;#95;towards&amp;#95;polygyny&amp;#95;and&amp;#95;male&amp;#95;variability&quot;&gt;Fisherian runaway selection towards polygyny and male variability&lt;/h4&gt;&lt;p&gt;It is interesting to try to determine under what conditions the two main traits analyzed above (female choosiness and male variability) can co-evolve. Assuming that both are &lt;a href='https://en.wikipedia.org/wiki/Complex_traits'&gt;quantitative traits&lt;/a&gt;, we investigate possible covariance between the two:&lt;/p&gt;&lt;pre&gt;&lt;code class=&quot;bash&quot;&gt;mkdir out-mvar
+python conduct.py --experiment mvar --num&amp;#95;pools 100 | gzip &amp;gt; out-mvar/out.ndjson.gz
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;This is very similar to &lt;code&gt;fcmc&lt;/code&gt; except instead of varying male choosiness, we vary the variability effect exerted by the GMV genotype by setting &lt;code&gt;&amp;quot;g2&amp;#95;male&amp;#95;variability&amp;quot;: np.linspace&amp;#40;1.0, 2.0, 21&amp;#41;&lt;/code&gt; while keeping male choosiness fixed at 0.2.&lt;/p&gt;&lt;pre&gt;&lt;code class=&quot;bash&quot;&gt;gunzip -c out.ndjson.gz | jq -rc \
+'&amp;#91;.args.g2&amp;#95;male&amp;#95;variability, .args.female&amp;#95;choosiness, .delta.&amp;quot;2&amp;quot;.kl.est&amp;#93; | @csv' \
+| python csvtool.py smooth3d --n&amp;#95;splines 12 12 12 12 --no&amp;#95;out&amp;#95;header \
+    &amp;gt; out-mvar/mvar-kl-smooth.csv
+
+bash plot/3d.sh out-mvar/mvar-kl-smooth.csv '$3' 0.02 &amp;quot;g2 male variability&amp;quot; \
+&amp;quot;female choosiness&amp;quot; &amp;quot;log relative fitness&amp;quot; fig-mvar-kl.svg
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;&lt;img src=&quot;https://raw.githubusercontent.com/LocusOfCtrl/gmvh_sim/master/images/fig-mvar-kl-3d.svg?sanitize=true&quot; alt=&quot;mvar kl&quot; /&gt;&lt;/p&gt;&lt;p&gt;Here is a contour plot of the above (the Z-axis is clipped to 0.8):&lt;/p&gt;&lt;pre&gt;&lt;code class=&quot;bash&quot;&gt;gnuplot -c plot/contours.gnu out-mvar/mvar-kl-smooth.csv \
+out-fcmc/fig-mvar-contours.svg 0.06 &amp;quot;g2 male variability&amp;quot; &amp;quot;female choosiness&amp;quot;
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;&lt;img src=&quot;https://raw.githubusercontent.com/LocusOfCtrl/gmvh_sim/master/images/fig-mvar-kl-contours.svg?sanitize=true&quot; alt=&quot;mvar contours&quot; /&gt;&lt;/p&gt;&lt;p&gt;That the two traits (female choosiness and male variability) are covariant is obvious from the convex contour of the fitness landscape above &lt;code&gt;y &amp;#126; 0.45&lt;/code&gt;. Below that threshold, the convexity disappears, meaning that the two traits become independent. Above the zero contour, however, conditions are ripe for &lt;a href='https://en.wikipedia.org/wiki/Fisherian_runaway'&gt;Fisherian runaway selection&lt;/a&gt; towards the upper-right corner. The selection gradient over the two traits can be visualized as a vector field:&lt;/p&gt;&lt;pre&gt;&lt;code class=&quot;bash&quot;&gt;gnuplot -c plot/vectors.gnu out-mvar/mvar-kl-smooth.csv \
+out-fcmc/fig-mvar-vectors.svg 0.06 &amp;quot;g2 male variability&amp;quot; &amp;quot;female choosiness&amp;quot;
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;&lt;img src=&quot;https://raw.githubusercontent.com/LocusOfCtrl/gmvh_sim/master/images/fig-mvar-kl-vectors.svg?sanitize=true&quot; alt=&quot;mvar vectors&quot; /&gt;&lt;/p&gt;&lt;p&gt;The zero contour above demarcates a boundary between &lt;i&gt;runaway selection&lt;/i&gt; on both traits in the upper-right direction and &lt;i&gt;stabilizing selection&lt;/i&gt; on female choosiness (notice small arrows pointing downward at around &lt;code&gt;y &amp;#126; 0.45&lt;/code&gt;). Because in our model choosiness represents willingness to reject the best available (unpaired) mate, the contour at &lt;code&gt;y &amp;#126; 0.45&lt;/code&gt; can be thought of as &lt;a href='https://en.wikipedia.org/wiki/Polygyny_threshold_model'&gt;polygyny threshold&lt;/a&gt;.&lt;/p&gt;&lt;h4 id=&quot;effect&amp;#95;of&amp;#95;parental&amp;#95;investment&quot;&gt;Effect of parental investment&lt;/h4&gt;&lt;p&gt;By &quot;parental investment&quot; here I refer how much parental phenotype quality (in case of &quot;single mothers&quot; this turns into maternal phenotype quality) affects offspring phenotype quality. This effect ranges from 0.0 (no connection) to 1.0 (offspring phenotype quality is fully determined by that of the parents). In case of marriages, the parents contribute equally towards the quality of their children, and their resources are &quot;split&quot; between offspring s.t. children in large families are penalized. In case of &quot;single mothers,&quot; the contribution is only from the mother.&lt;/p&gt;&lt;pre&gt;&lt;code class=&quot;bash&quot;&gt;mkdir out-fcpi
+python conduct.py --experiment fcpi --num&amp;#95;pools 100 | gzip &amp;gt; out-fcpi/out.ndjson.gz
+
+python make&amp;#95;plots.py --experiment fcpi out-fcpi
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;&lt;img src=&quot;https://raw.githubusercontent.com/LocusOfCtrl/gmvh_sim/master/images/fig-fcpi-kl-contours.svg?sanitize=true&quot; alt=&quot;fcpi contours&quot; /&gt;&lt;/p&gt;&lt;p&gt;This shows there exist a threshold near midpoint of the X axis s.t. at low values of parental investment and high female choosiness, the variable male genotype is more strongly selected for than at high values of parental investment and high female choosiness. When female choosiness is low, interestingly, the effect is inverted, albeit with much weaker selection in either direction.&lt;/p&gt;&lt;h3 id=&quot;appendix&quot;&gt;Appendix&lt;/h3&gt;&lt;h4 id=&quot;all&amp;#95;single&amp;#95;effects&quot;&gt;All single effects&lt;/h4&gt;&lt;p&gt;&amp;rightarrow; &lt;a href='doc/single_effects.md'&gt;Image index&lt;/a&gt;&lt;/p&gt;&lt;h4 id=&quot;monte&amp;#95;carlo&amp;#95;search&amp;#95;for&amp;#95;an&amp;#95;unbiased&amp;#95;selection&amp;#95;estimator&quot;&gt;Monte Carlo search for an unbiased selection estimator&lt;/h4&gt;&lt;p&gt;&amp;rightarrow; &lt;a href='doc/monte_carlo.md'&gt;Reproducible markdown&lt;/a&gt;&lt;/p&gt;&lt;h4 id=&quot;fitness&amp;#95;landscapes&amp;#95;with&amp;#95;pygam&quot;&gt;Fitness landscapes with PyGAM&lt;/h4&gt;&lt;p&gt;&amp;rightarrow; &lt;a href='doc/pygam-mvar.md'&gt;Fitting MVAR data with PyGAM (IPython notebook)&lt;/a&gt;&lt;/p&gt;&lt;p&gt;&amp;rightarrow; &lt;a href='doc/pygam-fcmc.md'&gt;Fitting FCMC data with PyGAM (IPython notebook)&lt;/a&gt;&lt;/p&gt;&lt;p&gt;&amp;rightarrow; &lt;a href='doc/pygam-single.md'&gt;Select single effects (IPython notebook)&lt;/a&gt;&lt;/p&gt;
+</description>
+<pubDate>
+Mon, 31 Dec 2018 00:00:00 -0800
+</pubDate>
+</item>
+<item>
+<guid>
+http://locusofctrl.github.io/blog/posts-output/2016-01-07-docs/
+</guid>
+<link>
+http://locusofctrl.github.io/blog/posts-output/2016-01-07-docs/
+</link>
+<title>
+Quick Start Guide
+</title>
+<description>
+&lt;p&gt;This intro only documents a subset of Cryogen's features. For additional documentation please see the &lt;a href='http://cryogenweb.org'&gt;cryogen site&lt;/a&gt;.&lt;/p&gt;&lt;h2 id=&quot;features&quot;&gt;Features&lt;/h2&gt;&lt;ul&gt;&lt;li&gt;Blog posts and pages with Markdown (default) or AsciiDoc&lt;/li&gt;&lt;li&gt;Tags&lt;/li&gt;&lt;li&gt;Table of contents generation&lt;/li&gt;&lt;li&gt;Plain HTML page templates&lt;/li&gt;&lt;li&gt;Code syntax highlighting&lt;/li&gt;&lt;li&gt;Disqus support&lt;/li&gt;&lt;li&gt;Sitemap generation&lt;/li&gt;&lt;li&gt;RSS feed generation&lt;/li&gt;&lt;li&gt;Sass/SCSS compilation&lt;/li&gt;&lt;li&gt;Klipse Integration&lt;/li&gt;&lt;/ul&gt;&lt;h2 id=&quot;prerequisites&quot;&gt;Prerequisites&lt;/h2&gt;&lt;p&gt;You will need &lt;a href='https://github.com/technomancy/leiningen'&gt;Leiningen&lt;/a&gt; 2.5.0 or above installed.&lt;/p&gt;&lt;h2 id=&quot;usage&quot;&gt;Usage&lt;/h2&gt;&lt;h3 id=&quot;creating&amp;#95;a&amp;#95;new&amp;#95;site&quot;&gt;Creating a New Site&lt;/h3&gt;&lt;p&gt;A new site can be created using the Cryogen template as follows:&lt;/p&gt;&lt;pre&gt;&lt;code&gt;lein new cryogen my-blog
+&lt;/code&gt;&lt;/pre&gt;&lt;h3 id=&quot;running&amp;#95;the&amp;#95;server&quot;&gt;Running the Server&lt;/h3&gt;&lt;p&gt;The web server can be started from the &lt;code&gt;my-blog&lt;/code&gt; directory using the &lt;code&gt;lein-ring&lt;/code&gt; plugin:&lt;/p&gt;&lt;pre&gt;&lt;code&gt;lein ring server
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;The server will watch for changes in the &lt;code&gt;resources/templates&lt;/code&gt; folder and recompile the content automatically.&lt;/p&gt;&lt;h3 id=&quot;site&amp;#95;configuration&quot;&gt;Site Configuration&lt;/h3&gt;&lt;p&gt;The site configuration file is found at &lt;code&gt;templates/config.edn&lt;/code&gt;, this file looks as follows:&lt;/p&gt;&lt;pre&gt;&lt;code class=&quot;clojure&quot;&gt;{:site-title           &amp;quot;My Awesome Blog&amp;quot;
+ :author               &amp;quot;Bob Bobbert&amp;quot;
+ :description          &amp;quot;This blog is awesome&amp;quot;
+ :site-url             &amp;quot;http://blogawesome.com/&amp;quot;
+ :post-root            &amp;quot;posts&amp;quot;
+ :page-root            &amp;quot;pages&amp;quot;
+ :post-root-uri        &amp;quot;posts-output&amp;quot;
+ :page-root-uri        &amp;quot;pages-output&amp;quot;
+ :tag-root-uri         &amp;quot;tags-output&amp;quot;
+ :author-root-uri      &amp;quot;authors-output&amp;quot;
+ :blog-prefix          &amp;quot;/blog&amp;quot;
+ :rss-name             &amp;quot;feed.xml&amp;quot;
+ :rss-filters          &amp;#91;&amp;quot;cryogen&amp;quot;&amp;#93;
+ :recent-posts         3
+ :post-date-format     &amp;quot;yyyy-MM-dd&amp;quot;
+ :archive-group-format &amp;quot;yyyy MMMM&amp;quot;
+ :sass-src             &amp;#91;&amp;#93;
+ :sass-path            &amp;quot;sass&amp;quot;
+ :compass-path         &amp;quot;compass&amp;quot;
+ :theme                &amp;quot;blue&amp;quot;
+ :resources            &amp;#91;&amp;quot;img&amp;quot;&amp;#93;
+ :keep-files           &amp;#91;&amp;quot;.git&amp;quot;&amp;#93;
+ :disqus?              false
+ :disqus-shortname     &amp;quot;&amp;quot;
+ :ignored-files        &amp;#91;#&amp;quot;\.#.&amp;#42;&amp;quot; #&amp;quot;.&amp;#42;\.swp$&amp;quot;&amp;#93;
+ :posts-per-page       5
+ :blocks-per-preview   2
+ :previews?            false
+ :clean-urls?          true
+ :hide-future-posts?   true
+ :klipse               {}
+ :debug?               false}
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;For information about each key please see the &lt;a href='http://cryogenweb.org/docs/configuration.html'&gt;&quot;Configuration&quot;&lt;/a&gt; portion of the Cryogen documentation site.&lt;/p&gt;&lt;h3 id=&quot;switching&amp;#95;between&amp;#95;markdown&amp;#95;and&amp;#95;asciidoc&quot;&gt;Switching between Markdown and AsciiDoc&lt;/h3&gt;&lt;p&gt;Cryogen comes with Markdown support as default. If you want to use AsciiDoc instead, open the &lt;code&gt;project.clj&lt;/code&gt; in your created blog (e.g. &lt;code&gt;my-blog&lt;/code&gt;), and change the line in &lt;code&gt;:dependencies&lt;/code&gt; that says &lt;code&gt;cryogen-markdown&lt;/code&gt; to &lt;code&gt;cryogen-asciidoc&lt;/code&gt;. Instead of looking for files ending in &lt;code&gt;.md&lt;/code&gt; in the &lt;code&gt;resources/templates/md&lt;/code&gt; directory, the compiler will now look for files ending in &lt;code&gt;.asc&lt;/code&gt; in the &lt;code&gt;resources/templates/asc&lt;/code&gt; directory.&lt;/p&gt;&lt;h3 id=&quot;selecting&amp;#95;a&amp;#95;theme&quot;&gt;Selecting a Theme&lt;/h3&gt;&lt;p&gt;The Cryogen template comes with two themes in the &lt;code&gt;resources/templates/themes&lt;/code&gt; folder. To change your blog's theme, change the value of the &lt;code&gt;:theme&lt;/code&gt; key in &lt;code&gt;config.edn&lt;/code&gt;.&lt;/p&gt;&lt;h3 id=&quot;customizing&amp;#95;layouts&quot;&gt;Customizing Layouts&lt;/h3&gt;&lt;p&gt;Cryogen uses &lt;a href='https://github.com/yogthos/Selmer'&gt;Selmer&lt;/a&gt; templating engine for layouts. Please refer to its documentation to see the supported tags and filters for the layouts.&lt;/p&gt;&lt;p&gt;The layouts are contained in the &lt;code&gt;resources/templates/themes/{theme}/html&lt;/code&gt; folder of the project. By default, the &lt;code&gt;base.html&lt;/code&gt; layout is used to provide the general layout for the site. This is where you would add static resources such as CSS and JavaScript assets as well as define headers and footers for your site.&lt;/p&gt;&lt;p&gt;Each page layout should have a name that matches the &lt;code&gt;:layout&lt;/code&gt; key in the page metadata and end with &lt;code&gt;.html&lt;/code&gt;. Page layouts extend the base layout and should only contain the content relevant to the page inside the &lt;code&gt;content&lt;/code&gt; block. For example, the &lt;code&gt;tag&lt;/code&gt; layout is located in &lt;code&gt;tag.html&lt;/code&gt; and looks as follows:&lt;/p&gt;&lt;pre&gt;&lt;code class=&quot;xml&quot;&gt;{% extends &amp;quot;templates/html/layouts/base.html&amp;quot; %}
+{% block content %}
+&amp;lt;div id=&amp;quot;posts-by-tag&amp;quot;&amp;gt;
+    &amp;lt;h2&amp;gt;Posts tagged {{name}}&amp;lt;/h2&amp;gt;
+    &amp;lt;ul&amp;gt;
+    {% for post in posts %}
+        &amp;lt;li&amp;gt;
+            &amp;lt;a href=&amp;quot;{{post.uri}}&amp;quot;&amp;gt;{{post.title}}&amp;lt;/a&amp;gt;
+        &amp;lt;/li&amp;gt;
+    {% endfor %}
+    &amp;lt;/ul&amp;gt;
+&amp;lt;/div&amp;gt;
+{% endblock %}
+&lt;/code&gt;&lt;/pre&gt;&lt;h3 id=&quot;code&amp;#95;syntax&amp;#95;highlighting&quot;&gt;Code Syntax Highlighting&lt;/h3&gt;&lt;p&gt;Cryogen uses &lt;a href='https://highlightjs.org/'&gt;Highlight.js&lt;/a&gt; for code syntax highlighting. You can add more languages by replacing &lt;code&gt;templates/js/highlight.pack.js&lt;/code&gt; with a customized package from &lt;a href='https://highlightjs.org/download/'&gt;here&lt;/a&gt;.&lt;/p&gt;&lt;p&gt;The &lt;code&gt; initHighlightingOnLoad&lt;/code&gt; function is called in &lt;code&gt;{theme}/html/base.html&lt;/code&gt;.&lt;/p&gt;&lt;pre&gt;&lt;code class=&quot;xml&quot;&gt;&amp;lt;script&amp;gt;hljs.initHighlightingOnLoad&amp;#40;&amp;#41;;&amp;lt;/script&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;h2 id=&quot;deploying&amp;#95;your&amp;#95;site&quot;&gt;Deploying Your Site&lt;/h2&gt;&lt;p&gt;The generated static content will be found under the &lt;code&gt;resources/public&lt;/code&gt; folder. Simply copy the content to a static folder for a server such as Nginx or Apache and your site is now ready for service.&lt;/p&gt;&lt;p&gt;A sample Nginx configuration that's placed in &lt;code&gt;/etc/nginx/sites-available/default&lt;/code&gt; can be seen below:&lt;/p&gt;&lt;pre&gt;&lt;code class=&quot;javascript&quot;&gt;server {
+  listen 80 default&amp;#95;server;
+  listen &amp;#91;::&amp;#93;:80 default&amp;#95;server ipv6only=on;
+  server&amp;#95;name localhost &amp;lt;yoursite.com&amp;gt; &amp;lt;www.yoursite.com&amp;gt;;
+
+  access&amp;#95;log  /var/log/blog&amp;#95;access.log;
+  error&amp;#95;log   /var/log/blog&amp;#95;error.log;
+
+  location / {
+    alias       /var/blog/;
+    error&amp;#95;page  404 = /404.html;
+  }
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Simply set &lt;code&gt;yoursite.com&lt;/code&gt; to the domain of your site in the above configuration and ensure the static content is available at &lt;code&gt;/var/blog/&lt;/code&gt;. Finally, place your custom error page in the &lt;code&gt;/var/blog/404.html&lt;/code&gt; file.&lt;/p&gt;&lt;p&gt;More information on deployment can be found &lt;a href='http://cryogenweb.org/docs/deploying-to-github-pages.html'&gt;here&lt;/a&gt;.&lt;/p&gt;&lt;h2 id=&quot;some&amp;#95;sites&amp;#95;made&amp;#95;with&amp;#95;cryogen&quot;&gt;Some Sites Made With Cryogen&lt;/h2&gt;&lt;ul&gt;&lt;li&gt;&lt;a href='http://carmenla.me/blog/archives'&gt;My personal blog&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href='http://cryogenweb.org'&gt;Cryogen Documentation Site&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href='http://yogthos.net/'&gt;Yogthos' blog&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href='http://www.agynamix.de'&gt;AGYNAMIX Site &amp; Blog&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href='http://www.chadstovern.com'&gt;Chad Stovern's blog&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href='http://lambdax.io/blog/'&gt;LambdaX&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href='http://www.szcz.org/'&gt;szcz&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href='https://blog.isvit.info'&gt;ISvit blog&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href='http://lambdafunk.com'&gt;Lambda Funk&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href='https://ddft.wiki'&gt;DDFT.wiki&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;
+</description>
+<pubDate>
+Thu, 07 Jan 2016 00:00:00 -0800
+</pubDate>
+</item>
+<item>
+<guid>
+http://locusofctrl.github.io/blog/posts-output/2014-11-04-second-post/
+</guid>
+<link>
+http://locusofctrl.github.io/blog/posts-output/2014-11-04-second-post/
+</link>
+<title>
+Yet Another Post
+</title>
+<description>
+&lt;h3 id=&quot;this&amp;#95;post&amp;#95;so&amp;#95;fetch&quot;&gt;This Post So Fetch&lt;/h3&gt;&lt;p&gt;some more stuff happened&lt;/p&gt;
+</description>
+<pubDate>
+Tue, 04 Nov 2014 00:00:00 -0800
+</pubDate>
+</item>
+<item>
+<guid>
+http://locusofctrl.github.io/blog/posts-output/2014-03-10-first-post/
+</guid>
+<link>
+http://locusofctrl.github.io/blog/posts-output/2014-03-10-first-post/
+</link>
+<title>
+A Post
+</title>
+<description>
+&lt;h3 id=&quot;this&amp;#95;post&amp;#95;not&amp;#95;fetch&amp;#95;enough&quot;&gt;This Post Not Fetch Enough&lt;/h3&gt;&lt;p&gt;some stuff happened&lt;/p&gt;&lt;blockquote&gt;&lt;p&gt; Stop trying to make fetch happen. &lt;/p&gt;&lt;footer&gt; Regina&lt;/footer&gt;&lt;/blockquote&gt;
+</description>
+<pubDate>
+Mon, 10 Mar 2014 00:00:00 -0700
+</pubDate>
+</item>
+</channel>
+</rss>
