@@ -124,6 +124,9 @@ h3 {
 }
 
 h4, h5, h6 {
+  font-weight: $font-weight-header;
+  font-family: $wide-font-family;
+
   font-size: 1.125em;
   line-height: 1.11111111;
   margin-top: 1.83333333em; /* (22px / 18px) * 1.5 */
@@ -206,4 +209,5 @@ code {
 
 code, kbd, samp {
   font-family: $mono-font-family;
+  font-size: 16px;
 }
