@@ -33,6 +33,11 @@ body {
   }
 }
 
+figure img {
+    max-width: 100%;
+    height: auto;
+}
+
 .post-header {
   h1 {
     margin-top: 0;

@@ -233,6 +233,11 @@ code, kbd, samp {
   font-size: 15px;
 }
 
+figure figcaption {
+  font-family: "Iowan Old Style", "Sitka Text", Palatino, "Book Antiqua", serif;
+  font-size: 15px;
+}
+
 .button {
   background: none;
   border: 2px solid #522158;
@@ -390,6 +395,11 @@ body {
   #sidebar-links {
     flex-flow: row nowrap;
   }
+}
+
+figure img {
+  max-width: 100%;
+  height: auto;
 }
 
 .post-header h1 {
