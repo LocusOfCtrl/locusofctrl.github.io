@@ -1,0 +1,37 @@
+# markdown-spellcheck spelling configuration file
+# Format - lines beginning # are comments
+# global dictionary is at the start, file overrides afterwards
+# one word per line, to define a file override use ' - filename'
+# where filename is relative to this configuration file
+adaptationist
+fisherian
+i.e.
+lekking
+apparency
+Equilibria
+ - 2019-01-15-seger-paper.md
+mathematica
+Koh
+Trivers
+1970s
+Seger
+Lande's
+R.A.
+Hamilton-Zuk
+Zahavi's
+eqnarray
+1a
+1b
+2a
+3a
+3b
+4a
+4b
+5a
+5b
+6a
+6b
+Jens
+Nöckel's
+Lande-Fisher
+2b

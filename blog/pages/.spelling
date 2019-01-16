@@ -1,0 +1,32 @@
+# markdown-spellcheck spelling configuration file
+# Format - lines beginning # are comments
+# global dictionary is at the start, file overrides afterwards
+# one word per line, to define a file override use ' - filename'
+# where filename is relative to this configuration file
+ - links.md
+navbar
+Littlefoot's
+Anthro
+Moser's
+Razib
+Cliodynamica
+Turchin's
+Harwick
+Unended
+Mizrob
+Selo
+Erlić
+Simler's
+Otium
+Constantin's
+Stucchio
+Meaningness
+Gelman's
+Cosma
+Shalizi's
+Unenumerated
+Szabo's
+Shtetl-Optimized
+Aaronson's
+ - about.md
+navbar

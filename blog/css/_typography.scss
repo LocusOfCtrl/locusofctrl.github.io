@@ -197,11 +197,13 @@ blockquote .author {
 }
 
 code {
+  /*
   @if(lightness($body-bgcolor) > 50) {
     background-color: darken($body-bgcolor, 5%);
   } @else {
     background-color: lighten($body-bgcolor, 5%);
   }
+  */
 
   border-radius: $default-border-radius;
   padding: 1px 3px;
