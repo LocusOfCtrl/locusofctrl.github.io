@@ -182,8 +182,8 @@ hr {
   padding: 0;
   margin: 45px 0;
   border: none;
-  border-top: 2px solid #522158;
-  border-bottom: 2px solid #522158;
+  border-top: 2px solid #1d125d;
+  border-bottom: 2px solid #1d125d;
   border-radius: 2px;
   text-align: center;
 }
@@ -193,7 +193,7 @@ blockquote {
   margin: 1em 0;
   /* (20px / 20px) */
   color: #555;
-  border-left: 5px solid #522158;
+  border-left: 5px solid #1d125d;
   padding: 0.5em;
   font-style: italic;
   font-size: 1.25em;
@@ -217,13 +217,6 @@ blockquote .author {
 }
 
 code {
-  /*
-  @if(lightness($body-bgcolor) > 50) {
-    background-color: darken($body-bgcolor, 5%);
-  } @else {
-    background-color: lighten($body-bgcolor, 5%);
-  }
-  */
   border-radius: 2px;
   padding: 1px 3px;
 }
@@ -240,7 +233,7 @@ figure figcaption {
 
 .button {
   background: none;
-  border: 2px solid #522158;
+  border: 2px solid #1d125d;
   position: relative;
   display: inline-block;
   padding: 7px 12px;
@@ -255,7 +248,7 @@ figure figcaption {
   letter-spacing: 2px;
 }
 .button:hover {
-  background: #522158;
+  background: #1d125d;
   color: #fff;
 }
 .button:active {
@@ -288,10 +281,10 @@ figure figcaption {
   letter-spacing: 2px;
 }
 #menucont .menu li:hover {
-  background: rgba(0, 0, 0, 0.2);
+  background: rgba(0, 0, 0, 0.3);
 }
 #menucont .menu li.active {
-  background: rgba(0, 0, 0, 0.2);
+  background: rgba(0, 0, 0, 0.3);
 }
 #menucont .menu li.active a {
   font-weight: 600;
@@ -479,17 +472,17 @@ body {
 }
 
 ::selection, ::-moz-selection {
-  background: #522158;
+  background: #1d125d;
   color: #fbfbfb;
 }
 
 a {
-  color: #a131ae;
+  color: #331cb9;
   text-decoration: none;
   text-decoration: underline solid currentColor;
 }
 a:hover {
-  color: #cb6ed7;
+  color: #6a55e6;
 }
 
 @media screen and (min-width: 700px) {
@@ -517,7 +510,7 @@ img {
    Sections
 ================================================== */
 #sidebar {
-  background: #522158;
+  background: #1d125d;
   color: #fff;
   -webkit-overflow-scrolling: touch;
   display: flex;
@@ -639,6 +632,16 @@ img {
   color: rgba(0, 0, 0, 0.4);
   text-transform: lowercase;
   font-size: 11px;
+}
+
+@media print {
+  #sidebar {
+    display: none !important;
+  }
+
+  #main {
+    overflow: visible !important;
+  }
 }
 
 /*# sourceMappingURL=blog.css.map */

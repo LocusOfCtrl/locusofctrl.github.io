@@ -3,7 +3,7 @@
 $black: #000;
 $red: #A71E2E;
 $green: #00D400;
-$purple: #522158;
+$purple: #1d125d;
 $very-dark-grey: #111;
 $dark-grey: #444;
 $grey: #808080;
@@ -24,15 +24,13 @@ $default-font-weight: $font-weight-normal;
 
 $default-font-size: 18px;
 $default-line-height: 1.25;
+$small-font-size: 15px;
 $button-font-size: 14px;
 $mono-font-size: 15px;
-$small-font-size: 15px;
 
-$wide-font-family: "PT Sans", Helvetica, Arial, sans-serif;
-$small-font-family: "Iowan Old Style", "Sitka Text", Palatino, "Book Antiqua", serif;
-//$wide-font-family: "Iowan Old Style", "Sitka Text", Palatino, "Book Antiqua", serif;
 $default-font-family: "Iowan Old Style", "Sitka Text", Palatino, "Book Antiqua", serif;
-//$default-font-family: Constantia, "Lucida Bright", Lucidabright, "Lucida Serif", Lucida, "DejaVu Serif", "Bitstream Vera Serif", "Liberation Serif", Georgia, serif;
+$small-font-family: "Iowan Old Style", "Sitka Text", Palatino, "Book Antiqua", serif;
+$wide-font-family: "PT Sans", Helvetica, Arial, sans-serif;
 $mono-font-family: Inconsolata, Consolas, "Deja Vu Sans Mono", "Bitstream Vera Sans Mono", "Droid Sans Mono", "Andale Mono", Anonymous, "Monaco", monospaced;
 
 // Borders
