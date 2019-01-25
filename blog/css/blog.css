@@ -447,7 +447,12 @@ figure img {
   flex: 1 1 0;
   margin-left: 1em;
   margin-right: 1em;
-  text-align: center;
+}
+#prev-next .prev .nav-text {
+  text-align: left;
+}
+#prev-next .next .nav-text {
+  text-align: right;
 }
 
 /* ==================================================
