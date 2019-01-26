@@ -1,28 +1,28 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <rss version='2.0' xmlns:atom='http://www.w3.org/2005/Atom'>
 <channel>
-<atom:link href='http://locusofctrl.github.io/' rel='self' type='application/rss+xml'/>
+<atom:link href='https://locusofctrl.github.io/' rel='self' type='application/rss+xml'/>
 <title>
 After Sol
 </title>
 <link>
-http://locusofctrl.github.io/
+https://locusofctrl.github.io/
 </link>
 <description>
 notes and musings
 </description>
 <lastBuildDate>
-Fri, 25 Jan 2019 00:26:46 -0800
+Sat, 26 Jan 2019 14:18:10 -0800
 </lastBuildDate>
 <generator>
 clj-rss
 </generator>
 <item>
 <guid>
-http://locusofctrl.github.io/blog/posts-output/2019-01-15-seger-paper/
+https://locusofctrl.github.io/blog/posts-output/2019-01-15-seger-paper/
 </guid>
 <link>
-http://locusofctrl.github.io/blog/posts-output/2019-01-15-seger-paper/
+https://locusofctrl.github.io/blog/posts-output/2019-01-15-seger-paper/
 </link>
 <title>
 A Classic Genetic Model of Sexual Selection (Part I)
