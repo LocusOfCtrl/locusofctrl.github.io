@@ -12,11 +12,28 @@ https://locusofctrl.github.io/
 notes and musings
 </description>
 <lastBuildDate>
-Sun, 27 Jan 2019 13:16:58 -0800
+Sun, 03 Feb 2019 18:15:47 -0800
 </lastBuildDate>
 <generator>
 clj-rss
 </generator>
+<item>
+<guid>
+https://locusofctrl.github.io/blog/posts-output/2019-02-03-male-strategy/
+</guid>
+<link>
+https://locusofctrl.github.io/blog/posts-output/2019-02-03-male-strategy/
+</link>
+<title>
+Male Strategy and Evolutionary Game Theory
+</title>
+<description>
+A brief introduction to game theory and population dynamics
+</description>
+<pubDate>
+Sun, 03 Feb 2019 00:00:00 -0800
+</pubDate>
+</item>
 <item>
 <guid>
 https://locusofctrl.github.io/blog/posts-output/2019-01-15-seger-paper/
