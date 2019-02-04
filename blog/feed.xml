@@ -12,7 +12,7 @@ https://locusofctrl.github.io/
 notes and musings
 </description>
 <lastBuildDate>
-Sun, 03 Feb 2019 18:15:47 -0800
+Sun, 03 Feb 2019 23:48:56 -0800
 </lastBuildDate>
 <generator>
 clj-rss
@@ -25,10 +25,10 @@ https://locusofctrl.github.io/blog/posts-output/2019-02-03-male-strategy/
 https://locusofctrl.github.io/blog/posts-output/2019-02-03-male-strategy/
 </link>
 <title>
-Male Strategy and Evolutionary Game Theory
+A Quick Introduction to Evolutionary Game Theory
 </title>
 <description>
-A brief introduction to game theory and population dynamics
+The lizard that plays rock-paper-scissors and other strange cases.
 </description>
 <pubDate>
 Sun, 03 Feb 2019 00:00:00 -0800
