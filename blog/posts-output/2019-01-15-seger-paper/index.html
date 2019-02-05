@@ -180,6 +180,14 @@
         
         <script type="text/x-mathjax-config">
          MathJax.Hub.Config({
+             TeX: {
+               Macros: {
+                 goodbreak: '\\mmlToken{mo}[linebreak="goodbreak"]{}',
+                 badbreak: ['\\mmlToken{mo}[linebreak="nobreak"]{#1}',1],
+                 nobreak: ['\\mmlToken{mo}[linebreak="nobreak"]{#1}',1],
+                 invisibletimes: ['\\mmlToken{mo}{\u2062}']
+               }
+             },
              "CommonHTML": {
                  linebreaks: { automatic: true },
                  width: "75% container",
