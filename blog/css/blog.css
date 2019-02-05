@@ -633,7 +633,12 @@ img {
 
 .post-header .byline .date {
   width: 100%;
+  text-align: left;
   font-variant-caps: small-caps;
+}
+.post-header .byline .author {
+  width: 100%;
+  text-align: right;
 }
 
 #post {

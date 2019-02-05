@@ -197,7 +197,12 @@ img {
   .byline {
     .date {
       width: 100%;
+      text-align: left;
       font-variant-caps: small-caps;
+    }
+    .author {
+      width: 100%;
+      text-align: right;
     }
   }
 }
