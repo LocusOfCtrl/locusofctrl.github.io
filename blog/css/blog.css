@@ -182,8 +182,8 @@ hr {
   padding: 0;
   margin: 45px 0;
   border: none;
-  border-top: 2px solid #1d125d;
-  border-bottom: 2px solid #1d125d;
+  border-top: 2px solid #522158;
+  border-bottom: 2px solid #522158;
   border-radius: 2px;
   text-align: center;
 }
@@ -193,7 +193,7 @@ blockquote {
   margin: 1em 0;
   /* (20px / 20px) */
   color: #555;
-  border-left: 5px solid #1d125d;
+  border-left: 5px solid #522158;
   padding: 0.5em;
   font-style: italic;
   font-size: 1.25em;
@@ -233,7 +233,7 @@ figure figcaption {
 
 .button {
   background: none;
-  border: 2px solid #1d125d;
+  border: 2px solid #522158;
   position: relative;
   display: inline-block;
   padding: 7px 12px;
@@ -248,7 +248,7 @@ figure figcaption {
   letter-spacing: 2px;
 }
 .button:hover {
-  background: #1d125d;
+  background: #522158;
   color: #fff;
 }
 .button:active {
@@ -484,17 +484,17 @@ body {
 }
 
 ::selection, ::-moz-selection {
-  background: #1d125d;
+  background: #522158;
   color: #fbfbfb;
 }
 
 a {
-  color: #331cb9;
+  color: #a131ae;
   text-decoration: none;
   text-decoration: underline solid currentColor;
 }
 a:hover {
-  color: #6a55e6;
+  color: #cb6ed7;
 }
 
 @media screen and (min-width: 700px) {
@@ -522,7 +522,7 @@ img {
    Sections
 ================================================== */
 #sidebar {
-  background: #1d125d;
+  background: #522158;
   color: #fff;
   -webkit-overflow-scrolling: touch;
   display: flex;
