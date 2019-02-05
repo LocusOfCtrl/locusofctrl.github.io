@@ -631,6 +631,10 @@ img {
   margin: 0;
 }
 
+.nobreak {
+  white-space: nowrap;
+}
+
 .post-header .byline .date {
   width: 100%;
   text-align: left;
