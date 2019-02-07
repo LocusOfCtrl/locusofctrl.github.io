@@ -663,19 +663,23 @@ center table {
 }
 
 center table td {
+  text-align: center;
   padding: 0 0.75em 0 0.75em;
 }
 
 center table th {
+  text-align: center;
   font-weight: normal;
   border-bottom: thin solid black;
 }
 
 center table td:nth-child(1) {
+  text-align: left;
   border-right: thin solid black;
 }
 
 center table th:nth-child(1) {
+  text-align: left;
   border-right: thin solid black;
 }
 
