@@ -222,6 +222,30 @@ img {
   font-size: 11px;
 }
 
+center table {
+    border-spacing: 0;
+    display: inline-block;
+    margin: 0 40px 1em 40px;
+}
+
+center table td {
+    padding: 0 0.75em 0 0.75em;
+}
+
+center table th {
+    font-weight: normal;
+    border-bottom: thin solid black;
+}
+
+center table td:nth-child(1) {
+    border-right: thin solid black;
+}
+
+center table th:nth-child(1) {
+    border-right: thin solid black;
+}
+
+
 @media print {
   #sidebar {
     display: none !important;
@@ -230,4 +254,3 @@ img {
     overflow: visible !important;
   }
 }
-
