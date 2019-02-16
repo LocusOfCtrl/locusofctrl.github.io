@@ -1,0 +1,4 @@
+This is a Brave Rewards publisher verification file.
+
+Domain: locusofctrl.github.io
+Token: 1c7e9e682b2d8cfc1d71893d43a96f557bf7e6fec3f253cb1e09f0681777b36e
